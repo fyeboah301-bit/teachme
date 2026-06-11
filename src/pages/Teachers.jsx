@@ -14,13 +14,13 @@ export default function Teachers() {
   useEffect(() => { fetchTeachers() }, [])
 
   const fetchTeachers = async () => {
-    const { data, error } = await supabase
-      .from('teachers')
-      .select(`*, profiles (full_name, city, country, email), certificates (certificate_name, status), pitch_videos (title, video_url)`)
-    if (error) console.log(error)
-    else setTeachers(data || [])
-    setLoading(false)
-  }
+  const { data, error } = await supabase
+    .from('teachers')
+    .select(`*, profiles (full_name, city, country, email), certificates (certificate_name, status), pitch_videos (title, video_url), reviews (rating)`)
+  if (error) console.log(error)
+  else setTeachers(data || [])
+  setLoading(false)
+}
 
   const filtered = teachers.filter(t => {
     const matchesSubject = selectedSubject === 'All' || (t.subjects && t.subjects.includes(selectedSubject))
@@ -102,6 +102,13 @@ export default function Teachers() {
                         📋 {teacher.certificates.filter(c => c.status === 'approved').length} verified certificate(s)
                       </p>
                     )}
+
+                    {teacher.reviews && teacher.reviews.length > 0 && (
+                    <p style={{ fontSize: '12px', color: '#795500', marginTop: '4px' }}>
+                      ⭐ {(teacher.reviews.reduce((sum, r) => sum + r.rating, 0) / teacher.reviews.length).toFixed(1)} ({teacher.reviews.length} review{teacher.reviews.length !== 1 ? 's' : ''})
+                     </p>
+                        )}
+
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
                     {teacher.hourly_rate > 0 && (

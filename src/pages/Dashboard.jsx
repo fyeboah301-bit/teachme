@@ -25,6 +25,13 @@ export default function Dashboard() {
           <Link to="/teachers" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Find teachers</Link>
           <Link to="/sessions" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Live sessions</Link>
           <Link to="/booking" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Book tuition</Link>
+          <Link to="/messages" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Messages</Link>
+          <Link to="/assignments" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Assignments</Link>
+          <Link to="/certificates" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Certificates</Link>
+          <Link to="/referrals" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Refer & Earn</Link>
+          {profile?.role === 'parent' && (
+  <Link to="/progress" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>Progress</Link>
+)}
           {profile?.role === 'teacher' && (
             <Link to="/admin" style={{ fontSize: '13px', color: YELLOW, textDecoration: 'none' }}>Admin</Link>
           )}

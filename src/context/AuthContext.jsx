@@ -43,6 +43,9 @@ export const AuthProvider = ({ children }) => {
     // Wait a moment for auth to settle
     await new Promise(resolve => setTimeout(resolve, 1000))
 
+    const referralCode = 'TM' + data.user.id.slice(0, 6).toUpperCase()
+    const referredBy = localStorage.getItem('teachme_referral')
+
     const { error: profileError } = await supabase.from('profiles').upsert({
       id: data.user.id,
       email,
@@ -50,9 +53,24 @@ export const AuthProvider = ({ children }) => {
       full_name: userData.full_name,
       phone: userData.phone,
       country: userData.country,
-      city: userData.city
+      city: userData.city,
+      referral_code: referralCode,
+      referred_by: referredBy || null
     })
     if (profileError) console.log('Profile error:', profileError)
+
+    if (referredBy) {
+      const { data: referrer } = await supabase.from('profiles').select('id').eq('referral_code', referredBy).single()
+      if (referrer) {
+        await supabase.from('referral_rewards').insert({
+          referrer_id: referrer.id,
+          referred_id: data.user.id,
+          reward_type: 'signup',
+          reward_status: 'pending'
+        })
+      }
+      localStorage.removeItem('teachme_referral')
+    }
 
     if (userData.role === 'teacher') {
       const { error: teacherError } = await supabase.from('teachers').upsert({

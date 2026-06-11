@@ -9,14 +9,34 @@ import TeacherProfile from './pages/TeacherProfile'
 import LiveSessions from './pages/LiveSessions'
 import Booking from './pages/Booking'
 import Admin from './pages/Admin'
+import Messages from './pages/Messages'
+import Assignments from './pages/Assignments'
+import Certificates from './pages/Certificates'
+import VerifyCertificate from './pages/VerifyCertificate'
+import Referrals from './pages/Referrals'
+import Progress from './pages/Progress'
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth()
   return user ? children : <Navigate to="/login" />
 }
 
+import { useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
+
+function ReferralCapture() {
+  const [searchParams] = useSearchParams()
+  useEffect(() => {
+    const ref = searchParams.get('ref')
+    if (ref) localStorage.setItem('teachme_referral', ref)
+  }, [searchParams])
+  return null
+}
+
 function AppRoutes() {
   return (
+    <>
+    <ReferralCapture />
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
@@ -29,6 +49,16 @@ function AppRoutes() {
           <Booking />
         </ProtectedRoute>
       } />
+      <Route path="/messages" element={
+        <ProtectedRoute>
+          <Messages />
+        </ProtectedRoute>
+      } />
+      <Route path="/assignments" element={
+  <ProtectedRoute>
+    <Assignments />
+  </ProtectedRoute>
+} />
       <Route path="/dashboard" element={
         <ProtectedRoute>
           <Dashboard />
@@ -39,7 +69,26 @@ function AppRoutes() {
           <Admin />
         </ProtectedRoute>
       } />
+      <Route path="/referrals" element={
+  <ProtectedRoute>
+    <Referrals />
+  </ProtectedRoute>
+} />
+
+<Route path="/progress" element={
+  <ProtectedRoute>
+    <Progress />
+  </ProtectedRoute>
+} />
+
+      <Route path="/certificates" element={
+  <ProtectedRoute>
+    <Certificates />
+  </ProtectedRoute>
+} />
+<Route path="/verify/:code" element={<VerifyCertificate />} />
     </Routes>
+    </>
   )
 }
 
