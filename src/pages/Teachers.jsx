@@ -18,7 +18,7 @@ export default function Teachers() {
     .from('teachers')
     .select(`*, profiles (full_name, city, country, email), certificates (certificate_name, status), pitch_videos (title, video_url), reviews (rating)`)
   if (error) console.log(error)
-  else setTeachers(data || [])
+  else { console.log('TEACHERS DATA:', data); setTeachers(data || []) }
   setLoading(false)
 }
 
