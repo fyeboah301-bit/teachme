@@ -55,15 +55,8 @@ body {
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
+  width: 100%;
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
 }
 
 h1,
@@ -108,4 +101,20 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+.PhoneInputInput {
+  background: #fff !important;
+  color: #111 !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 14px;
+  font-family: inherit;
+  flex: 1;
+  padding: 0;
+}
+
+.PhoneInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

@@ -35,6 +35,10 @@ export const AuthProvider = ({ children }) => {
     setProfile(data)
   }
 
+  const refreshProfile = async () => {
+    if (user) await fetchProfile(user.id)
+  }
+
  const signUp = async (email, password, userData) => {
   const { data, error } = await supabase.auth.signUp({ email, password })
   if (error) throw error
@@ -87,9 +91,14 @@ export const AuthProvider = ({ children }) => {
   return data
 }
 
-  const signIn = async (email, password) => {
+ const signIn = async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+    const { data: profileData } = await supabase.from('profiles').select('status').eq('id', data.user.id).single()
+    if (profileData?.status === 'suspended') {
+      await supabase.auth.signOut()
+      throw new Error('Your account has been suspended. Please contact support.')
+    }
     return data
   }
 
@@ -99,7 +108,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, refreshProfile }}>
       {!loading && children}
     </AuthContext.Provider>
   )
