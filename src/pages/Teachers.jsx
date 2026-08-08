@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import NavBar from '../components/NavBar'
 import Footer from '../components/Footer'
 import { supabase } from '../lib/supabase'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import usePageMeta from '../hooks/usePageMeta'
 import {
   BLUE, YELLOW, DARK_BLUE, LIGHT_BLUE, GREY_BG, GREY_LIGHT,
@@ -31,16 +31,44 @@ export default function Teachers() {
   const { user, profile } = useAuth()
   const navigate = useNavigate()
   const isMobile = useIsMobile()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [teachers, setTeachers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedSubject, setSelectedSubject] = useState('All')
-  const [search, setSearch] = useState('')
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+
+  // Read initial state from URL
+  const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || 'All')
+  const [search, setSearch] = useState(searchParams.get('q') || '')
   const [filters, setFilters] = useState({
-    verifiedOnly: false, hasVideos: false, hasCerts: false,
-    minRating: '', maxPrice: '', minPrice: '',
-    city: '', country: '', teachingLevel: '', sortBy: 'default',
+    verifiedOnly: searchParams.get('verified') === '1',
+    hasVideos: searchParams.get('videos') === '1',
+    hasCerts: searchParams.get('certs') === '1',
+    minRating: searchParams.get('minRating') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    minPrice: searchParams.get('minPrice') || '',
+    city: searchParams.get('city') || '',
+    country: searchParams.get('country') || '',
+    teachingLevel: searchParams.get('level') || '',
+    sortBy: searchParams.get('sort') || 'default',
   })
+
+  // Sync state to URL whenever filters/search/subject change
+  useEffect(() => {
+    const params = {}
+    if (search) params.q = search
+    if (selectedSubject !== 'All') params.subject = selectedSubject
+    if (filters.verifiedOnly) params.verified = '1'
+    if (filters.hasVideos) params.videos = '1'
+    if (filters.hasCerts) params.certs = '1'
+    if (filters.minRating) params.minRating = filters.minRating
+    if (filters.minPrice) params.minPrice = filters.minPrice
+    if (filters.maxPrice) params.maxPrice = filters.maxPrice
+    if (filters.city) params.city = filters.city
+    if (filters.country) params.country = filters.country
+    if (filters.teachingLevel) params.level = filters.teachingLevel
+    if (filters.sortBy !== 'default') params.sort = filters.sortBy
+    setSearchParams(params, { replace: true })
+  }, [search, selectedSubject, filters])
 
   useEffect(() => {
     if (profile?.role === 'teacher') navigate('/dashboard')
@@ -58,11 +86,15 @@ export default function Teachers() {
 
   const setFilter = (key, val) => setFilters(prev => ({ ...prev, [key]: val }))
 
-  const clearFilters = () => setFilters({
-    verifiedOnly: false, hasVideos: false, hasCerts: false,
-    minRating: '', maxPrice: '', minPrice: '',
-    city: '', country: '', teachingLevel: '', sortBy: 'default'
-  })
+  const clearFilters = () => {
+    setFilters({
+      verifiedOnly: false, hasVideos: false, hasCerts: false,
+      minRating: '', maxPrice: '', minPrice: '',
+      city: '', country: '', teachingLevel: '', sortBy: 'default'
+    })
+    setSearch('')
+    setSelectedSubject('All')
+  }
 
   const cities = [...new Set(teachers.map(t => t.profiles?.city).filter(Boolean))].sort()
   const countries = [...new Set(teachers.map(t => t.profiles?.country).filter(Boolean))].sort()
@@ -320,7 +352,7 @@ export default function Teachers() {
                 <div style={{ fontSize: '52px', marginBottom: '1rem' }}>🔍</div>
                 <h3 style={{ fontSize: '20px', fontWeight: '700', color: TEXT, marginBottom: '8px', letterSpacing: '-0.01em' }}>No teachers found</h3>
                 <p style={{ fontSize: '14px', color: TEXT_MUTED, marginBottom: '1.5rem' }}>Try adjusting your search or filters</p>
-                <button onClick={() => { clearFilters(); setSearch(''); setSelectedSubject('All') }}
+                <button onClick={clearFilters}
                   style={{ padding: '11px 28px', background: GRADIENT_BLUE, color: '#fff', border: 'none', borderRadius: '50px', fontSize: '14px', cursor: 'pointer', fontFamily: 'inherit', fontWeight: '700', boxShadow: SHADOW_BLUE }}>
                   Reset filters
                 </button>
